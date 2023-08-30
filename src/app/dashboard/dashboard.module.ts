@@ -6,6 +6,9 @@ import { SharedModule } from '../shared/shared.module';
 import { SideBarComponent } from './feature/side-bar.component';
 import { GoldPriceCardComponent } from './feature/gold-price-card.component';
 import { NavBarComponent } from './feature/nav-bar.component';
+import { ProfileService } from '../services/profile.service';
+import { SocketIoService } from '../services/socket-io.service';
+import { TraderPriceService } from '../services/trader-price.service';
 
 
 @NgModule({
@@ -18,6 +21,7 @@ import { NavBarComponent } from './feature/nav-bar.component';
   imports: [
     SharedModule,
     DashboardRoutingModule
-  ]
+  ],
+providers: [ProfileService, SocketIoService, TraderPriceService]
 })
 export class DashboardModule { }

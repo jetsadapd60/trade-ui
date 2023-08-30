@@ -1,4 +1,5 @@
 import { Injectable } from "@angular/core";
+import { StorageKey } from "../shared/enums/token.enum";
 
 /**
  * Service นี้สำหรับจัดการ Token
@@ -12,8 +13,8 @@ export class TokenServiec {
      * @param key ชื่อโทเค็น
      * @returns 
      */
-    getAccessToken(key: string): string | undefined {
-        let existToken = localStorage.getItem(key);
+    getAccessToken(): string | undefined {
+        let existToken = localStorage.getItem(StorageKey.ACCESS_TOKEN);
         if(existToken) {
             return existToken;
         } else {
@@ -27,9 +28,9 @@ export class TokenServiec {
      * @param accessToken โทคเค็น
      * @returns บันทีกสำเร็จคืนค่า 1, ไม่สำเร็จคืนค่า 0
      */
-    setAccessToken(key: string, accessToken: string): number {
-        if(key && accessToken) {
-            localStorage.setItem(key, accessToken);
+    setAccessToken(accessToken: string): number {
+        if(accessToken) {
+            localStorage.setItem(StorageKey.ACCESS_TOKEN, accessToken);
             return 1;
         } else {
             return 0;
@@ -41,8 +42,8 @@ export class TokenServiec {
      * @param key ชื่อรีเฟรชโทเค็น
      * @returns มีเฟรชโทเค็นคืนค่า refresh token, ไม่มีเฟรชโทเค็นคืนค่า undefinded
      */
-    getRefreshToken(key: string): string | undefined {
-        let existRefreshToken = localStorage.getItem(key);
+    getRefreshToken(): string | undefined {
+        let existRefreshToken = localStorage.getItem(StorageKey.REFRESH_TOKEN);
         if(existRefreshToken) {
             return existRefreshToken;
         } else {
@@ -56,9 +57,9 @@ export class TokenServiec {
      * @param accessToken โทคเค็น
      * @returns บันทีกสำเร็จคืนค่า 1, ไม่สำเร็จคืนค่า 0
      */
-    setRreshToken(key: string, refreshToken: string) {
-        if(key && refreshToken) {
-            localStorage.setItem(key, refreshToken);
+    setRreshToken(refreshToken: string) {
+        if(refreshToken) {
+            localStorage.setItem(StorageKey.REFRESH_TOKEN,refreshToken);
             return 1;
         } else {
             return 0;

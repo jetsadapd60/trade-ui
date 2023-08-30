@@ -1,4 +1,4 @@
-import { CSP_NONCE, Component, OnDestroy } from "@angular/core";
+import { Component, OnDestroy } from "@angular/core";
 import { AuthService } from "./auth.service";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Subscription } from "rxjs";
@@ -7,6 +7,7 @@ import { MessageService } from "primeng/api";
 import { Router } from "@angular/router";
 import { TokenServiec } from "../services/token.service";
 import { StorageKey } from "../shared/enums/token.enum";
+import { StorageService } from "../services/storage.service";
 
 @Component({
     selector: 'login',
@@ -50,10 +51,8 @@ import { StorageKey } from "../shared/enums/token.enum";
             </div> 
         </section>
 
-            <div [ngClass]="{'d-none': isHiddenSpinner, 'd-flex': !isHiddenSpinner}" class="spinner-backgroud d-flex justify-content-center">
-                <p-progressSpinner strokeWidth='5'></p-progressSpinner>
-            </div>
 
+        
         <p-toast></p-toast>
     `,
     styles: [`
@@ -78,13 +77,15 @@ export class LoginComponent implements OnDestroy {
     form: FormGroup;
     private subscription!: Subscription;
     isHiddenSpinner = true;
+
     
     constructor(
             private fb: FormBuilder, 
             private authService: AuthService, 
             private messageService: MessageService,
             private router: Router,
-            private tokenService: TokenServiec) {
+            private tokenService: TokenServiec,
+            private storageService: StorageService) {
 
         this.form = this.fb.group({
             userName: ['demotrader', [Validators.required]],
@@ -108,10 +109,15 @@ export class LoginComponent implements OnDestroy {
                     return;
                 }
 
-                const { data: {token} } = res;
+                const { data: {token, refreshToken, userID} } = res;
                 this.messageService.add({ severity: 'success', summary: 'Success', detail: `${res.message}` });
-                this.tokenService.setAccessToken(StorageKey.ACCESS_TOKEN, token);
-                this.tokenService.setAccessToken(StorageKey.IS_LOGGEDIN, 'true');
+                
+                this.tokenService.setAccessToken(token);
+                this.tokenService.setRreshToken(refreshToken);
+                
+                this.storageService.setStorage(StorageKey.IS_LOGGEDIN, 'true');
+                this.storageService.setStorage(StorageKey.USER_ID, userID);
+
                 this.router.navigateByUrl('/dashboard');
             }
 

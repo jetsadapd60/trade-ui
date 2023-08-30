@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MenuModel } from '../shared/models';
 import { AuthService } from '../auth/auth.service';
+import { Socket, io } from 'socket.io-client';
+import { StorageKey } from '../shared/enums/token.enum';
 
 @Component({
   selector: 'app-dashboard',

@@ -16,8 +16,8 @@ export const environment = {
       'https://ausirisnext.com/AusirisBackendApi/BackendAccount/UserTrader/GetAllByPerPage?currentPage=1&limitPerPage=50',
     url_api: 'https://trade.ausirisnext.com/trader-api/api/',
     url_api_back: 'https://ausirisnext.com/AusirisBackendApi/',
-    url_feeds: 'https://socketa1.ausirisnext.com/trader-socket',
-    url_server_api: 'https://trade.ausirisnext.com/server-api',
+    url_feeds: 'https://socketa1.ausirisnext.com/trader-socket/',
+    url_server_api: 'https://trade.ausirisnext.com/server-api/',
     place_order_url: 'https://socketa1.ausirisnext.com/',
   
     // url_api_jack: 'https://ausirisnext.com/AusirisBackendApi/BackendAccount/UserTrader/GetAllByPerPage?currentPage=1&limitPerPage=50',

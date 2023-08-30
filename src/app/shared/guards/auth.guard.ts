@@ -7,15 +7,17 @@ import { StorageKey } from "../enums/token.enum";
 
 @Injectable({providedIn: 'root'})
 export class AuthGuard {
+
   constructor(private router: Router, private tokenService: TokenServiec) {}
-  canActivate(
-    next: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
-  ): Observable<boolean> | Promise<boolean> | UrlTree | boolean {
-    let isLoggedIn = this.tokenService.getAccessToken(StorageKey.IS_LOGGEDIN);
+
+  canActivate( next: ActivatedRouteSnapshot, state: RouterStateSnapshot ): boolean {
+
+    let isLoggedIn = this.tokenService.getAccessToken();
+
     if(isLoggedIn) {
       return true;
     }
+    
     this.router.navigateByUrl('/login')
     return false;
   }
