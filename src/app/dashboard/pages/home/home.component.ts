@@ -421,7 +421,7 @@ import { Component } from '@angular/core';
             <div class="card card-carousel overflow-hidden">
                   <div class="card-body px-2">
                     <div class="row">
-                      <p class="text-center font-weight-bold text-primary">Collateral Statsu</p>
+                      <p class="text-center font-weight-bold text-primary">Collateral Status</p>
                       <div>
                         <ul class="p-0 m-0 d-flex justify-content-around" style="list-style: none;">
                           <li class="d-flex flex-column align-items-center">

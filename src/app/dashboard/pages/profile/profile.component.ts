@@ -109,6 +109,7 @@ export class ProfileComponent {
     this.profile$ = this.profileService
                         .profile$
                         .pipe(map(res=>{
+                          console.log(res)
                           if(res && res.status && res.result) {
                             const { data, pagination: { total } } = res.result;
                             total > 0 ? this.haveProfile = false : this.haveProfile = true;

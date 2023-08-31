@@ -20,3 +20,13 @@ export interface MarketingTeamResponeModel {
     members: any[];
     snapshot_1_Members: any[];
   }
+
+
+  export interface FilterOrderModel {
+    purity: string | "99" | "96";
+    tradeType: string | 'Buy' | 'Sell';
+    tradeStatus: string | 'Cancelled' | 'Matched' | 'Waiting';
+    memberRef: string;
+    marketingTeam: string;
+  }
+  

@@ -9,7 +9,9 @@ import { NavBarComponent } from './feature/nav-bar.component';
 import { ProfileService } from '../services/profile.service';
 import { SocketIoService } from '../services/socket-io.service';
 import { TraderPriceService } from '../services/trader-price.service';
-
+import { HightLowPriceService } from '../services/hight-low-price.service';
+import { PlaceOrderRealTimeService } from '../services/place-order-r-t.service';
+import { MarketingTeamService } from '../services/marketing-team.service';
 
 @NgModule({
   declarations: [
@@ -18,10 +20,14 @@ import { TraderPriceService } from '../services/trader-price.service';
     GoldPriceCardComponent,
     NavBarComponent,
   ],
-  imports: [
-    SharedModule,
-    DashboardRoutingModule
+  imports: [SharedModule, DashboardRoutingModule],
+  providers: [
+    ProfileService,
+    SocketIoService,
+    TraderPriceService,
+    MarketingTeamService,
+    HightLowPriceService,
+    PlaceOrderRealTimeService
   ],
-providers: [ProfileService, SocketIoService, TraderPriceService]
 })
-export class DashboardModule { }
+export class DashboardModule {}

@@ -1,9 +1,11 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { CSP_NONCE, ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
+import { Observable, Subject, debounceTime, distinctUntilChanged, tap } from 'rxjs';
 import { MarketingTeamService } from 'src/app/services/marketing-team.service';
 import { PlaceOrderRealTimeService } from 'src/app/services/place-order-r-t.service';
-import { DataMarketingTeam } from 'src/app/shared/models/marketing-team.model';
+import { DropdownFilterModel } from 'src/app/shared/models/drop-down-fliter.model';
+import { DataMarketingTeam, FilterOrderModel } from 'src/app/shared/models/marketing-team.model';
 import { PlaceOrderRealTimeModel } from 'src/app/shared/models/place-order-r-t/place-order.model';
+
 
 @Component({
   selector: 'app-place-order-r-t',
@@ -13,63 +15,59 @@ import { PlaceOrderRealTimeModel } from 'src/app/shared/models/place-order-r-t/p
     <div class="card mt-3">
       <div class="card-body">
         <div class="row">
-          <form class="form">
+          <!-- <form class="form"> -->
             <div class="form-group mb-0">
               <div class="row">
 
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-xxl-2 col-md-6">
                   <div class="dropdown">
-                      <select (change)="onFilterByMarketingTeam($event.target)" class="form-select form-select btn bg-outline-primary dropdown-toggle w-100" aria-label="Default select example">
-                        <option value="" selected>-- Marketing Team --</option>
+                      <select (change)="onFilterByMarketingTeam($event.target)" class="form-select form-select mb-3 mb-xxl-0 w-100" aria-label="Default select example">
+                        <option value="">-- Marketing Team --</option>
                         <option [value]="team.pK_SyMTe" *ngFor="let team of marketingTeam$ | async">{{team.name}}</option>
                       </select>
                   </div>
                 </div>
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-xxl-2 col-md-6">
                   <div class="dropdown">
-                      <select class="form-select form-select btn bg-outline-primary dropdown-toggle w-100" aria-label="Default select example">
-                        <option selected>-- Purity --</option>
-                        <option value="1">99.99</option>
-                        <option value="1">96.50</option>
+                      <select (change)="onFilterByPurity($event.target)" class="form-select form-select mb-3 mb-xxl-0 w-100" aria-label="Default select example">
+                        <option value="">-- Purity --</option>
+                        <option [value]="purity.value" *ngFor="let purity of puritys">{{purity.label}}</option>
                       </select>
                   </div>
                 </div>
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-xxl-2 col-md-6">
                   <div class="dropdown">
-                      <select class="form-select form-select btn bg-outline-primary dropdown-toggle w-100" aria-label="Default select example">
-                        <option selected>-- Buy/Sell --</option>
-                        <option value="1">Buy</option>
-                        <option value="1">Sell</option>
+                      <select (change)="onFilterByTradeType($event.target)" class="form-select form-select mb-3 mb-xxl-0 w-100" aria-label="Default select example">
+                        <option value="">-- Buy/Sell --</option>
+                        <option [value]="type.value" *ngFor="let type of tradeType">{{type.label}}</option>
                       </select>
                   </div>
                 </div>
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-xxl-2 col-md-6">
                     <div class="dropdown">
-                        <select class="form-select form-select btn bg-outline-primary dropdown-toggle w-100" aria-label="Default select example">
-                          <option selected>-- Status --</option>
-                          <option value="1">W</option>
-                          <option value="1">M</option>
-                          <option value="1">C</option>
+                        <select (change)="onFilterByTradeStatus($event.target)" class="form-select form-select mb-3 mb-xxl-0 w-100" aria-label="Default select example">
+                          <!-- <option value="">-- Status --</option> -->
+                          <option [value]="status.value" [selected]="status.selected" *ngFor="let status of tradeStatus">{{status.label}}</option>
                         </select>
                     </div>
                 </div>
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-xxl-2 col-md-6">
                     <!-- <div class="form-group"> -->
-                      <input type="text" class=" form-control" id="exampleFormControlInput1" placeholder="Search Member Ref">
+                      <input type="text" (keyup)="onFilterByMemberRef($event.target)" class=" form-control" id="exampleFormControlInput1" placeholder="Search Member Ref">
                     <!-- </div> -->
                 </div>
-                <div class="col-lg-4 col-md-6 mt-3 mt-md-0">
-                  <div class="btn btn-primary w-100">Reset</div>
+                <div class="col-lg-4 col-xxl-2 col-md-6 mt-3 mt-md-0">
+                  <div class="btn btn-primary mb-xxl-0 w-100" (click)="onResetFilter()">Reset</div>
                 </div>
               </div>
             </div>
-          </form>
+          <!-- </form> -->
         </div>
       </div>
     </div>
   
     <div class="card mt-3">
-      <div class="card-body">
+      <div class="card-body px-0">
         <div class="row">
           <div class="table-responsive">
             <table class="table align-items-center mb-0">
@@ -183,20 +181,29 @@ export class PlaceOrderRTComponent {
 
   marketingTeam$: Observable<DataMarketingTeam[]>
 
+  inputSearch$ = new Subject<string>();
+
+  filterOrderModel: FilterOrderModel = {
+    purity: '',
+    tradeType: '',
+    tradeStatus: '',
+    memberRef: '',
+    marketingTeam: '',
+  }
+
   constructor(
               private marketingTeamService: MarketingTeamService,
               private placeOrderRealTimeService:PlaceOrderRealTimeService, 
               private ref: ChangeDetectorRef) {
 
-    this.getOrders();
+                this.getOrders();
 
-    this.marketingTeam$ = this.marketingTeamService.marketingTeam$;
+                this.marketingTeam$ = this.marketingTeamService.marketingTeam$;
 
+                
+                this.searuchStream();
   }
 
-  onFilterByMarketingTeam(event: any) {
-    console.log(event.value)
-  }
 
   private getOrders() {
 
@@ -207,4 +214,135 @@ export class PlaceOrderRTComponent {
         .pipe(tap(_=>this.ref.markForCheck()))
         .subscribe({next})
   }
+
+  // สตรีมสำหรับคืนหา member ref
+  private searuchStream() {
+
+    const next = (textSearch: string) => {
+      if(textSearch === '') return;
+
+      this.filterOrderModel.memberRef = textSearch;
+      console.log(this.filterOrderModel)
+      this.feedFilter();
+
+    };
+    const error = (err: any) => console.log(error);
+
+    this.inputSearch$
+        .pipe(
+          debounceTime(500),
+          distinctUntilChanged(),
+        )
+        .subscribe({next, error})
+  }
+
+      /**
+   * สำหรับ filter ด้วย Member ref
+   * @param e string
+   */
+  onFilterByMemberRef(e: any) {
+    this.filterOrderModel.memberRef = e.value;
+    console.log(this.filterOrderModel)
+    this.feedFilter();
+  }
+
+    /**
+   * สำหรับ filter ด้วย Marketign team
+   * @param e id, string
+   */
+  onFilterByMarketingTeam(e: any) {
+    this.filterOrderModel.marketingTeam = e.value;
+    console.log(this.filterOrderModel)
+    this.feedFilter();
+  }
+
+  /**
+   * สำหรับ filter ด้วย Purity
+   * @param e 96.50%, 99.99%
+   */
+  onFilterByPurity(e: any) {
+    this.filterOrderModel.purity = e.value
+    console.log(this.filterOrderModel)
+    this.feedFilter();
+  }
+  /**
+   * สำหรับ filter ด้วย TradeType
+   * @param e Buy, Sell
+   */
+  onFilterByTradeType(e: any) {
+    this.filterOrderModel.tradeType = e.value
+    console.log(this.filterOrderModel)
+    this.feedFilter();
+  }
+  /**
+   * สำหรับ filter ด้วย TradeType
+   * @param e Cancelled, Matched, Waiting
+   */
+  onFilterByTradeStatus(e: any) {
+    this.filterOrderModel.tradeStatus = e.value
+    console.log(this.filterOrderModel)
+    this.feedFilter();
+  }
+  onFilterMarketingTeam(e: any) {
+    this.filterOrderModel.marketingTeam = e.value;
+    this.feedFilter();
+    console.log(this.filterOrderModel);
+    
+  }
+
+  feedFilter() {
+    this.placeOrderRealTimeService
+        .placeOrder$
+        .subscribe(
+          res => {
+            let item = (res as PlaceOrderRealTimeModel[]);
+            if(this.filterOrderModel.purity != ''){
+              item = item.filter(v=> v.purity == parseInt(this.filterOrderModel.purity!))
+            }
+            if(this.filterOrderModel.tradeType != ''){
+              item = item.filter(v=> v.tradeType == this.filterOrderModel.tradeType!)
+            }
+            if(this.filterOrderModel.memberRef != ''){
+              item = item.filter(v=> v.memberRef.includes(this.filterOrderModel.memberRef!))
+            }
+            if(this.filterOrderModel.tradeStatus != ''){
+              item = item.filter(v=> v.tradeStatus.includes(this.filterOrderModel.tradeStatus!))
+            }
+            if(this.filterOrderModel.marketingTeam != ''){
+              item = item.filter(v=> v.marketingTeamId == this.filterOrderModel.marketingTeam!.toUpperCase())
+            }
+
+            this.orders=item
+          }
+        )
+  }
+
+  onResetFilter() {
+    this.filterOrderModel.marketingTeam = '';
+    this.filterOrderModel.purity = '';
+    this.filterOrderModel.tradeType = '';
+    this.filterOrderModel.tradeStatus = '';
+    this.filterOrderModel.memberRef = '';
+    
+    this.feedFilter();
+  }
+
+
+
+  puritys: DropdownFilterModel[] = [
+      { id: '101', label: '96.50 %', value: '96', selected: false },
+      { id: '102', label: '99.99 %', value: '99', selected: false },
+    ]
+
+  tradeType: DropdownFilterModel[] = [
+    { id: '101', label: 'Buy', value: 'Buy', selected: false },
+    { id: '102', label: 'Sell', value: 'Sell', selected: false },
+  ]
+
+  tradeStatus: DropdownFilterModel[] = [
+      { id: '104', label: '-- Status --', value: '', selected: true },
+      { id: '101', label: 'Waiting', value: 'Waiting', selected: false },
+      { id: '102', label: 'Matched', value: 'Matched', selected: false },
+      { id: '103', label: 'Cancelled', value: 'Cancelled', selected: false },
+    ]
 }

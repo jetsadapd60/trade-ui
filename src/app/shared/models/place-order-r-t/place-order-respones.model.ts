@@ -6,3 +6,12 @@ export interface PlaceOrderRespone {
     total: number;
     trade: PlaceOrderRealTimeModel[];
   }
+
+  export interface PlaceOrderModel {
+    _id: string
+    tradeType: string
+    price: number
+    quantity: number
+    amount: number
+    purity: number
+  }
